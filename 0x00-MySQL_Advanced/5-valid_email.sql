@@ -1,9 +1,11 @@
 -- Sending an email
 
-CREATE TRIGGER decrease_quantity AFTER INSERT ON orders
+DELIMITER //
+CREATE TRIGGER reset_email BEFORE UPDATE ON users
 FOR EACH ROW
 BEGIN
-    UPDATE items
-    SET quantity = quantity - NEW.number
-    WHERE name = NEW.item_name;
-END;
+   IF NEW.email <> OLD.email THEN 
+      SET NEW.valid_email = 0;
+   END IF;
+END;//
+DELIMITER ;
