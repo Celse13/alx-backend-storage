@@ -3,5 +3,5 @@
 
 
 def list_all(mongo_collection):
-    documents = mongo_collection.find()
-    return list(documents)
+    """ List all documents """
+    return list(mongo_collection.find())
