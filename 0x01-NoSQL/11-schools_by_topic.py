@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
-"""
-mod doc
-"""
+""" all documents """
 
 
 def schools_by_topic(mongo_collection, topic):
-    """
-    func doc
-    """
+    """ all documents """
     return mongo_collection.find({"topics": topic})
