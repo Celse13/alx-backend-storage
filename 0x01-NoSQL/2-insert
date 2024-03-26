@@ -1,3 +1,4 @@
+// Inserting field into the document
 db.school.insert({
     name: "Holberton school",
 })
