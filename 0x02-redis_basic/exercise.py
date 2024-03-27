@@ -38,18 +38,18 @@ def call_history(method: Callable) -> Callable:
 
 
 def replay(method: Callable) -> None:
-    """replay class"""
-    input_k = "{}:inputs".format(method.__qualname__)
-    outupu_k = "{}:outputs".format(method.__qualname__)
+    """doc doc class"""
+    inside_key = "{}:inputs".format(method.__qualname__)
+    outside_key = "{}:outputs".format(method.__qualname__)
 
-    result_input = method.__self__._redis.lrange(input_k, 0, -1)
-    result_output = method.__self__._redis.lrange(outupu_k, 0, -1)
+    opts = method.__self__._redis.lrange(inside_key, 0, -1)
+    inpts = method.__self__._redis.lrange(outside_key, 0, -1)
 
-    print("{} was called {} times:".format(method.__qualname__, len(result_input)))
-    for inp, out in zip(result_input, result_output):
+    print("{} was called {} times:".format(method.__qualname__, len(opts)))
+    for incom, out in zip(opts, inpts):
         print(
             "{}(*{}) -> {}".format(
-                method.__qualname__, inp.decode("utf-8"), out.decode("utf-8")
+                method.__qualname__, incom.decode("utf-8"), out.decode("utf-8")
             )
         )
 
