@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""doc doc module"""
+""" Redis documentation """
+
 
 import redis
 import uuid
@@ -8,44 +9,44 @@ from functools import wraps
 
 
 def count_calls(method: Callable) -> Callable:
-    """doc doc class"""
+    """count_calls class"""
 
     @wraps(method)
     def wrapper(self, *args, **kwargs):
-        """doc doc class"""
-        key = method.__qualname__
-        self._redis.incr(key)
+        """ wrapper """
+        k = method.__qualname__
+        self._redis.incr(k)
         return method(self, *args, **kwargs)
 
     return wrapper
 
 
 def call_history(method: Callable) -> Callable:
-    """doc doc class"""
-    inkey = method.__qualname__ + ":inputs"
-    outkey = method.__qualname__ + ":outputs"
+    """ history class"""
+    inner_k = method.__qualname__ + ":inputs"
+    outer_K = method.__qualname__ + ":outputs"
 
     @wraps(method)
     def wrapper(self, *args, **kwargs):
-        """doc doc class"""
-        self._redis.rpush(inkey, str(args))
-        res = method(self, *args, **kwargs)
-        self._redis.rpush(outkey, str(res))
-        return res
+        """ wrapper """
+        self._redis.rpush(inner_k, str(args))
+        output = method(self, *args, **kwargs)
+        self._redis.rpush(outer_K, str(output))
+        return output
 
     return wrapper
 
 
 def replay(method: Callable) -> None:
-    """doc doc class"""
-    input_key = "{}:inputs".format(method.__qualname__)
-    output_key = "{}:outputs".format(method.__qualname__)
+    """replay class"""
+    input_k = "{}:inputs".format(method.__qualname__)
+    outupu_k = "{}:outputs".format(method.__qualname__)
 
-    inputs = method.__self__._redis.lrange(input_key, 0, -1)
-    outputs = method.__self__._redis.lrange(output_key, 0, -1)
+    result_input = method.__self__._redis.lrange(input_k, 0, -1)
+    result_output = method.__self__._redis.lrange(outupu_k, 0, -1)
 
-    print("{} was called {} times:".format(method.__qualname__, len(inputs)))
-    for inp, out in zip(inputs, outputs):
+    print("{} was called {} times:".format(method.__qualname__, len(result_input)))
+    for inp, out in zip(result_input, result_output):
         print(
             "{}(*{}) -> {}".format(
                 method.__qualname__, inp.decode("utf-8"), out.decode("utf-8")
@@ -54,34 +55,34 @@ def replay(method: Callable) -> None:
 
 
 class Cache:
-    """doc doc class"""
+    """Cache class"""
 
     def __init__(self):
-        """doc doc method"""
+        """ constructor """
         self._redis = redis.Redis()
         self._redis.flushdb()
 
     @count_calls
     @call_history
     def store(self, data: Union[str, bytes, int, float]) -> str:
-        """doc doc method"""
-        keyx = str(uuid.uuid4())
-        self._redis.set(keyx, data)
-        return keyx
+        """store class"""
+        k = str(uuid.uuid4())
+        self._redis.set(k, data)
+        return k
 
     def get(
-        self, key: str, fn: Optional[Callable] = None
+        self, key_str: str, fn: Optional[Callable] = None
     ) -> Union[str, bytes, int, float]:
-        """doc doc method"""
-        value = self._redis.get(key)
+        """get class"""
+        retrieved_value = self._redis.get(key_str)
         if fn:
-            value = fn(value)
-        return value
+            retrieved_value = fn(retrieved_value)
+        return retrieved_value
 
-    def get_str(self, key: str) -> str:
-        """doc doc method"""
-        return self.get(key, fn=str)
+    def get_str(self, key_str: str) -> str:
+        """get string class"""
+        return self.get(key_str, fn=str)
 
-    def get_int(self, key: str) -> int:
-        """doc doc method"""
-        return self.get(key, fn=int)
+    def get_int(self, key_str: str) -> int:
+        """get int class"""
+        return self.get(key_str, fn=int)
